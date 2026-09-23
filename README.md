@@ -1,13 +1,17 @@
+<p align="center">
+  <img src="docs/icon.png" alt="Ceilidh" width="176">
+</p>
+
 # Ceilidh
 
 [![CI](https://github.com/affix/ceilidh/actions/workflows/ci.yml/badge.svg)](https://github.com/affix/ceilidh/actions/workflows/ci.yml)
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
 
-A two pad dance game for macOS and Linux, built for a pair of Konami Xbox 360 dance pads and for playing whatever songs we feel like adding. A **ceilidh** is a social dance where nobody gets to stay in their seat, which is roughly the intent here.
+A two pad dance game for macOS, Windows and Linux, built for a pair of Konami Xbox 360 dance pads and for playing whatever songs we feel like adding. A **ceilidh** is a social dance where nobody gets to stay in their seat, which is roughly the intent here.
 
 ## What is this?
 
-A **dance mat game** is the arrow scrolling, foot stomping thing we all remember from the arcade: four panels, arrows climbing the screen towards a row of receptors, and a judgement for every step depending on how close to the beat it landed. Most of the open source options are either abandoned, awkward to build on an Apple silicon Mac, or unhappy about two controllers being plugged in at once. This one is a small Python codebase built on pygame-ce, so the same source runs on a MacBook and on a Raspberry Pi 4 in the living room, and it treats two pads as the normal case rather than an afterthought.
+A **dance mat game** is the arrow scrolling, foot stomping thing we all remember from the arcade: four panels, arrows climbing the screen towards a row of receptors, and a judgement for every step depending on how close to the beat it landed. Most of the open source options are either abandoned, awkward to build on an Apple silicon Mac, or unhappy about two controllers being plugged in at once. This one is a small Python codebase built on pygame-ce, so the same source runs on a MacBook, on a Windows desktop and on a Raspberry Pi 4 in the living room, and it treats two pads as the normal case rather than an afterthought.
 
 It reads StepMania simfiles, so the enormous back catalogue of community packs works out of the box, and it will also generate a playable chart from any audio file we point it at. In this README we will get it installed, get both pads bound, add some songs, and calibrate the timing so that stepping on the beat actually scores like stepping on the beat.
 

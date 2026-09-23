@@ -3,6 +3,7 @@ Type=Application
 Name=Ceilidh
 GenericName=Dance Mat Game
 Comment=Two pad dance mat game with custom song support
+Icon=ceilidh
 Exec=ceilidh
 Terminal=false
 Categories=Game;ArcadeGame;

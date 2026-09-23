@@ -10,7 +10,7 @@ from pathlib import Path
 import pygame
 
 from .config import Config
-from .display import FontBank, Window
+from .display import FontBank, Window, set_window_icon
 from .input import InputManager
 from .screen import Screen
 from . import library
@@ -43,6 +43,7 @@ class App:
         except pygame.error:
             pass
         pygame.display.set_caption("Ceilidh")
+        set_window_icon()          # before the window exists, so it sticks
         pygame.mouse.set_visible(False)
 
         self.cfg = cfg

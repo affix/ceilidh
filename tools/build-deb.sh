@@ -97,6 +97,25 @@ cp /build/README.md /stage/usr/share/doc/ceilidh/README.md
 cp /build/packaging/ceilidh-kiosk.service /stage/lib/systemd/system/
 cp /build/packaging/ceilidh.desktop /stage/usr/share/applications/
 
+# scale the one source icon into the sizes a desktop actually looks for,
+# using the pygame we just installed rather than pulling in imagemagick
+if [ -f /build/ceilidh/assets/icon.png ]; then
+  SDL_VIDEODRIVER=dummy /opt/ceilidh/venv/bin/python3 - <<'ICON'
+import pygame
+pygame.init()
+source = pygame.image.load("/build/ceilidh/assets/icon.png")
+for size in (32, 48, 64, 128, 256, 512):
+    folder = f"/stage/usr/share/icons/hicolor/{size}x{size}/apps"
+    import os
+    os.makedirs(folder, exist_ok=True)
+    pygame.image.save(pygame.transform.smoothscale(source, (size, size)),
+                      f"{folder}/ceilidh.png")
+print("   icons installed")
+ICON
+else
+  echo "   no icon at ceilidh/assets/icon.png, skipping"
+fi
+
 cat > /stage/usr/bin/ceilidh <<'EOF'
 #!/bin/sh
 exec /opt/ceilidh/venv/bin/ceilidh "$@"
