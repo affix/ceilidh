@@ -19,6 +19,19 @@ It reads StepMania simfiles, so the enormous back catalogue of community packs w
 
 *Five seconds of YYZ on Hard and Medium at once.*
 
+## Just want to play it?
+
+Grab a build from the [releases page](https://github.com/affix/ceilidh/releases). Python and SDL are inside each one, so there is nothing else to install.
+
+| Platform | File |
+| --- | --- |
+| Windows 10 or 11 | `Ceilidh-*-windows-x64.exe` |
+| macOS | `Ceilidh-*-macos.tar.gz` |
+| Raspberry Pi 4, 64 bit | `ceilidh_*_arm64.deb` |
+| Debian or Ubuntu desktop | `ceilidh_*_amd64.deb` |
+
+Neither desktop build is signed, so macOS wants a right click and Open the first time rather than a double click, and Windows shows a SmartScreen warning once. The rest of this README is for running from source, which is what we want if we intend to change anything.
+
 ## What do we need?
 
 * Python 3.11 or newer, and [uv](https://docs.astral.sh/uv/) for dependency management.
@@ -114,6 +127,14 @@ Simfiles often ship a background video, and if one is sitting in the song folder
 When there is no video, or no `ffmpeg` to play it with, the song's background image is used instead, and failing that the menu gradient. **Background** under Options turns video off if we would rather always have the still image, and **Background Dim** sets how far the whole thing is knocked back, from nothing at all up to almost black.
 
 If the decoder falls behind the music, which it can on a Pi, the video jumps forward to catch up rather than drifting further and further out. Dropping `video_height` in the config file decodes at a smaller size and scales it up, which is the cheap way to keep video on a Pi.
+
+## The artwork and the type
+
+The arrows are painted rather than drawn: one piece of knotwork per direction, each with its own colour, so a glance tells us which panel a note belongs to without reading the shape. The same artwork does several jobs. A receptor is the arrow with the knotwork cut out of the middle, which the game works out at load by taking the alpha silhouette, eroding it, and subtracting the result to leave the outer frame. That keeps the exact colours of the original instead of recolouring it, and it means a target reads as somewhere to land rather than as a note that stopped moving. Mines, hit sparks, the logo and the thistle on the results screen come from the same set.
+
+None of it is required. Every lookup falls back to the procedural shapes the game started with, so a checkout missing its assets still plays.
+
+Two faces are bundled, both open licence. **Cinzel Bold** carries the labels, menus and song titles, and **Luckiest Guy** does the shouting: judgements, combos, the count in and the grades. Either falls back to pygame's built in font when its file is absent. Text is measured rather than counted when it has to fit somewhere, so a long song title wraps inside its panel and a long pad name ellipsises at the column edge instead of running off the side.
 
 ## Adding your own songs
 
@@ -358,7 +379,7 @@ uv sync
 uv run pytest
 ```
 
-There are 227 unit tests across the timing map, the judgement windows and scoring, the lane state machine, both simfile parsers, the song models, the library scanner, the config file and the pad binding syntax. They never open a window or a sound device: `tests/conftest.py` pins SDL to its dummy drivers, so a test run is always silent. CI runs them on Linux, macOS and Windows, which is what keeps the cross platform claims honest.
+There are 251 unit tests across the timing map, the judgement windows and scoring, the lane state machine, both simfile parsers, the song models, the library scanner, the config file and the pad binding syntax. They never open a window or a sound device: `tests/conftest.py` pins SDL to its dummy drivers, so a test run is always silent. CI runs them on Linux, macOS and Windows, which is what keeps the cross platform claims honest.
 
 ## How does scoring work?
 
@@ -386,6 +407,8 @@ MIT. See [LICENSE](LICENSE).
 
 Songs are not covered by it: simfiles and their audio belong to whoever made them, which is why the song folders are kept out of this repository.
 
+The two bundled faces keep their own licences, both of which sit beside them in `ceilidh/assets/fonts`. Cinzel is under the SIL Open Font Licence and Luckiest Guy under Apache 2.0.
+
 ## Project layout
 
 ```
@@ -399,7 +422,10 @@ ceilidh/
   chart.py      note, chart and song models
   audio.py      music clock, drift correction, generated click sounds
   library.py    song directory scanning
-  display/      window.py, arrows.py, fonts.py, widgets.py, theme.py, video.py
+  paths.py      where things live, running from source or from a bundle
+  assets/       artwork, the icon, and the two bundled faces
+  display/      window.py, art.py, arrows.py, fonts.py, icon.py, widgets.py,
+                theme.py, video.py
   gameplay/     timing.py, judge.py, lane.py, playfield.py, background.py, demo.py
   simfile/      sm.py and jsonchart.py parsers behind one load()
   screens/      menu, song select, gameplay, results, pad setup
