@@ -291,6 +291,23 @@ ceilidh --kiosk --attract-seconds 30
 
 Since there is no Quit item, leaving takes a deliberate act: hold Back for three seconds on the main menu and a countdown appears. On a machine running the service, stopping it over ssh is the other way out.
 
+## Building a standalone app
+
+For a machine that should not need Python installed at all, PyInstaller will fold the game, its dependencies and the interpreter into one thing we can hand over.
+
+```bash
+uv sync --group package
+uv run python tools/build-app.py
+```
+
+Whichever platform we run that on is what comes out: `dist/Ceilidh.exe` on Windows, `dist/Ceilidh.app` on macOS, and a folder on Linux. PyInstaller cannot cross compile, so there is no building a Windows executable from a Mac; CI builds both on their own runners and uploads them from every push, which is the easiest way to get one without owning the other machine. The Windows build is a single file by default, which takes a second or two to unpack itself on launch, and `--onedir` trades that for a folder that starts immediately.
+
+The icon is converted on the way in. Windows wants an `.ico` and macOS wants an `.icns`, so the script scales the one PNG into every size each format expects, writing the `.ico` by hand and handing the `.icns` to the `iconutil` that ships with macOS. Nothing extra to install either way.
+
+A bundled build looks for songs next to itself, so a `songs` folder beside the `.exe`, or beside the `.app` rather than buried inside it, works the way people expect. The usual `~/Music/Ceilidh` and `%LOCALAPPDATA%` locations still apply.
+
+Both builds are unsigned. On macOS that means Gatekeeper will refuse an `.app` that arrived from anywhere other than the machine that built it, and the way past it is right click, Open, rather than a double click. On Windows, SmartScreen will warn the first time. Signing them properly needs a developer certificate on each platform, which is a paperwork problem rather than a code one.
+
 ## Building the Debian package
 
 `tools/build-deb.sh` produces a `.deb` that carries its own virtualenv, so the Pi needs nothing installed beyond glibc and a sound card, and there is no pip step on the target at all. The build runs inside a pinned `debian:bookworm-slim` container, which means we can build the arm64 package on a Mac without any cross compiling faff.
@@ -375,6 +392,7 @@ ceilidh/
   screens/      menu, song select, gameplay, results, pad setup
 tools/
   autochart.py  chart generation from audio
+  build-app.py  standalone .exe / .app build, icons and all
   ziv.py        simfile search and download from Zenius -I- vanisher
   build-deb.sh  Debian package build, run in a container
 packaging/

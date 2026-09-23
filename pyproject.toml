@@ -21,6 +21,7 @@ ceilidh = "ceilidh.cli:main"
 
 [dependency-groups]
 dev = ["pytest>=8.0"]
+package = ["pyinstaller>=6.10"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -6,7 +6,19 @@ from pathlib import Path
 
 import pygame
 
-ICON_PATH = Path(__file__).resolve().parent.parent / "assets" / "icon.png"
+from ..paths import bundle_root
+
+
+def _icon_path() -> Path:
+    root = bundle_root()
+    if root is not None:
+        packaged = root / "ceilidh" / "assets" / "icon.png"
+        if packaged.is_file():
+            return packaged
+    return Path(__file__).resolve().parent.parent / "assets" / "icon.png"
+
+
+ICON_PATH = _icon_path()
 
 
 def set_window_icon(path: Path | None = None) -> bool:

@@ -98,3 +98,34 @@ def test_path_traversal_is_still_refused_on_windows(monkeypatch):
     monkeypatch.setattr(ziv.os, "name", "nt")
     assert ziv.safe_path("../../evil.txt") is None
     assert ziv.safe_path("/etc/passwd") is None
+
+
+def test_running_from_source_is_not_frozen():
+    from ceilidh import paths
+
+    assert paths.frozen() is False
+    assert paths.bundle_root() is None
+    assert (paths.app_dir() / "ceilidh").is_dir()
+
+
+def test_a_bundle_looks_beside_itself_for_songs(monkeypatch, tmp_path):
+    from ceilidh import paths
+
+    bundle = tmp_path / "Ceilidh.app" / "Contents" / "MacOS"
+    bundle.mkdir(parents=True)
+    monkeypatch.setattr(sys, "frozen", True, raising=False)
+    monkeypatch.setattr(sys, "executable", str(bundle / "ceilidh"))
+    monkeypatch.setattr(sys, "_MEIPASS", str(bundle), raising=False)
+
+    assert paths.frozen() is True
+    assert paths.app_dir() == tmp_path          # beside the .app, not inside it
+    assert paths.bundle_root() == bundle
+    assert tmp_path / "songs" in library.default_song_paths()
+
+
+def test_a_windows_bundle_looks_next_to_the_exe(monkeypatch, tmp_path):
+    from ceilidh import paths
+
+    monkeypatch.setattr(sys, "frozen", True, raising=False)
+    monkeypatch.setattr(sys, "executable", str(tmp_path / "Ceilidh.exe"))
+    assert paths.app_dir() == tmp_path

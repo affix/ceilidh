@@ -61,3 +61,51 @@ jobs:
           name: ceilidh-deb
           path: dist/*.deb
           if-no-files-found: error
+
+  desktop:
+    name: standalone build (${{ matrix.os }})
+    # PyInstaller cannot cross compile, so each one is built on its own runner
+    if: github.event_name == 'push'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install the project
+        run: uv sync --locked --group package --python 3.12
+
+      - name: Build it
+        run: uv run python tools/build-app.py
+
+      - name: Check the Windows build starts
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $app = Start-Process -FilePath dist/Ceilidh.exe -ArgumentList '--list-songs' -Wait -PassThru
+          if ($app.ExitCode -ne 0) { throw "exited $($app.ExitCode)" }
+
+      - name: Check the macOS build starts
+        if: runner.os == 'macOS'
+        run: ./dist/Ceilidh.app/Contents/MacOS/Ceilidh --list-songs
+
+      # tar the bundle so the executable bit survives the upload
+      - name: Pack the macOS bundle
+        if: runner.os == 'macOS'
+        run: tar -czf dist/Ceilidh-macos.tar.gz -C dist Ceilidh.app
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ceilidh-${{ runner.os }}
+          path: |
+            dist/Ceilidh.exe
+            dist/Ceilidh-macos.tar.gz
+          if-no-files-found: error
