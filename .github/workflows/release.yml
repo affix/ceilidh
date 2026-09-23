@@ -1,0 +1,155 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  # lets us rehearse the whole thing; a manual run only ever makes a draft
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    name: check the version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: version
+        shell: bash
+        run: |
+          project=$(sed -n 's/^version = "\(.*\)"/\1/p' pyproject.toml | head -1)
+          echo "version=$project" >> "$GITHUB_OUTPUT"
+          echo "pyproject says $project"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            tagged="${GITHUB_REF_NAME#v}"
+            if [ "$tagged" != "$project" ]; then
+              echo "::error::tag $GITHUB_REF_NAME does not match pyproject version $project"
+              exit 1
+            fi
+          fi
+
+  desktop:
+    name: ${{ matrix.os }}
+    needs: check
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - run: uv sync --locked --group package --python 3.12
+      - run: uv run python tools/build-app.py
+
+      - name: Name it after the version
+        shell: bash
+        run: |
+          version="${{ needs.check.outputs.version }}"
+          mkdir -p release
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            mv dist/Ceilidh.exe "release/Ceilidh-${version}-windows-x64.exe"
+          else
+            tar -czf "release/Ceilidh-${version}-macos.tar.gz" -C dist Ceilidh.app
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ runner.os }}
+          path: release/*
+          if-no-files-found: error
+
+  debian:
+    name: deb (${{ matrix.arch }})
+    needs: check
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64, arm64]
+    steps:
+      - uses: actions/checkout@v4
+
+      # the Pi build is cross architecture, so it runs under emulation
+      - name: Set up emulation
+        if: matrix.arch != 'amd64'
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
+
+      - run: ./tools/build-deb.sh --arch ${{ matrix.arch }} --output release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-deb-${{ matrix.arch }}
+          path: release/*.deb
+          if-no-files-found: error
+
+  publish:
+    name: publish
+    needs: [check, desktop, debian]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          merge-multiple: true
+          path: release
+
+      - name: What we are releasing
+        run: ls -lh release
+
+      - name: Write the notes
+        shell: bash
+        run: |
+          cat > notes.md <<'NOTES'
+          ## Downloads
+
+          | Platform | File |
+          | --- | --- |
+          | Windows 10/11 | `Ceilidh-*-windows-x64.exe` |
+          | macOS | `Ceilidh-*-macos.tar.gz` |
+          | Raspberry Pi 4, 64 bit | `ceilidh_*_arm64.deb` |
+          | Debian or Ubuntu desktop | `ceilidh_*_amd64.deb` |
+
+          Nothing else needs installing: Python and SDL are inside each build.
+
+          Both desktop builds are unsigned. On macOS, right click the app and
+          choose Open the first time, since a double click will be refused.
+          On Windows, SmartScreen will warn once.
+
+          Install the Debian package with `sudo apt install ./ceilidh_*.deb`,
+          then `sudo systemctl enable --now ceilidh-kiosk` if you want the
+          machine to boot straight into it.
+          NOTES
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          version="${{ needs.check.outputs.version }}"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            tag="$GITHUB_REF_NAME"
+            draft=""
+            case "$tag" in *-*) pre="--prerelease" ;; *) pre="" ;; esac
+          else
+            # a draft does not create the git tag until somebody publishes it,
+            # so a rehearsal leaves no trace beyond a deletable draft
+            tag="v${version}-rehearsal"
+            draft="--draft"
+            pre="--prerelease"
+          fi
+          gh release create "$tag" release/* \
+            --title "Ceilidh $version" \
+            --notes-file notes.md \
+            --generate-notes $draft $pre

@@ -336,6 +336,19 @@ ceilidh-ziv get --pack 1817 --out /var/lib/ceilidh/songs
 
 Removing the package stops and disables the service. Purging it takes the virtualenv and the user with it but deliberately leaves the song library alone, because no packaging system should be allowed to delete a few gigabytes of somebody's music on the way out.
 
+## Cutting a release
+
+Tagging is the whole process. The version in `pyproject.toml` is the source of truth, and the workflow refuses to release if the tag disagrees with it.
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+That builds the Windows executable, the macOS bundle and the Debian package for both `amd64` and `arm64`, then attaches all four to a GitHub release with notes explaining which file is for what. The Pi package is built under emulation, so it is the slowest part by a distance. A tag with a suffix, `v0.2.0-rc1` for instance, is published as a prerelease.
+
+Running the workflow by hand from the Actions tab instead produces a draft release, which is a way to rehearse the whole thing without a tag or anything public appearing.
+
 ## Running the tests
 
 The judging, timing, parsing and config code has no pygame in it, so the suite runs headless and in well under a second.
