@@ -8,7 +8,9 @@ A **dance mat game** is the arrow scrolling, foot stomping thing we all remember
 
 It reads StepMania simfiles, so the enormous back catalogue of community packs works out of the box, and it will also generate a playable chart from any audio file we point it at. In this README we will get it installed, get both pads bound, add some songs, and calibrate the timing so that stepping on the beat actually scores like stepping on the beat.
 
-![Two players on separate difficulties of the same song](docs/screenshots/gameplay.png)
+![Five seconds of YYZ, two players on different difficulties](docs/screenshots/yyz.gif)
+
+*Five seconds of YYZ on Hard and Medium at once.*
 
 ## What do we need?
 
