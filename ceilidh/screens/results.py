@@ -3,6 +3,7 @@ from __future__ import annotations
 import pygame
 
 from ..screen import Screen
+from ..display import DISPLAY, art
 from ..display.theme import ACCENT, PANEL
 from ..input import InputEvent
 from ..gameplay.judge import JUDGEMENTS, JUDGEMENT_COLOUR
@@ -37,6 +38,10 @@ class Results(Screen):
         width, height = surface.get_size()
         scale = self.app.scale
 
+        emblem = art.emblem(int(54 * scale))
+        if emblem is not None:
+            surface.blit(emblem, emblem.get_rect(midright=(
+                width // 2 - int(158 * scale), int(40 * scale))))
         self.fonts.draw(surface, "RESULTS", (width // 2, int(40 * scale)), int(56 * scale),
                         (255, 90, 160), bold=True, anchor="center")
         self.fonts.draw(surface, self.song.display_title[:44], (width // 2, int(92 * scale)),
@@ -62,18 +67,19 @@ class Results(Screen):
 
             grade_colour = (255, 215, 90) if not score.failed else (210, 80, 80)
             self.fonts.draw(surface, score.grade, (centre, at(84)), int(80 * scale),
-                            grade_colour, bold=True, anchor="midtop")
+                            grade_colour, bold=True, anchor="midtop", role=DISPLAY)
             self.fonts.draw(surface, f"{score.percent:.2f}%", (centre, at(168)),
-                            int(42 * scale), (235, 235, 250), bold=True, anchor="midtop")
+                            int(42 * scale), (235, 235, 250), bold=True, anchor="midtop",
+                            role=DISPLAY)
 
             y = at(222)
             for judgement in JUDGEMENTS:
                 colour = JUDGEMENT_COLOUR[judgement]
                 self.fonts.draw(surface, judgement, (panel.left + int(40 * scale), y),
-                                int(26 * scale), colour, anchor="midleft")
+                                int(26 * scale), colour, anchor="midleft", role=DISPLAY)
                 self.fonts.draw(surface, str(score.counts[judgement]),
                                 (panel.right - int(40 * scale), y), int(26 * scale), colour,
-                                bold=True, anchor="midright")
+                                bold=True, anchor="midright", role=DISPLAY)
                 y += int(26 * scale)
 
             y += int(8 * scale)

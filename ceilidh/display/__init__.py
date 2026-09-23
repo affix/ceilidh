@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from . import theme, video
+from . import art, theme, video
 from .arrows import (
     arrow_surface,
     burst_surface,
@@ -11,13 +11,16 @@ from .arrows import (
     receptor_scaled,
     receptor_surface,
 )
-from .fonts import FontBank
+from .fonts import DISPLAY, UI, FontBank
 from .icon import ICON_PATH, set_window_icon
 from .widgets import draw_bar, scale_cover, vertical_gradient
 from .window import LOW_REFRESH_HZ, Window, refresh_rate
 
 __all__ = [
+    "DISPLAY",
     "FontBank",
+    "art",
+    "UI",
     "ICON_PATH",
     "LOW_REFRESH_HZ",
     "Window",

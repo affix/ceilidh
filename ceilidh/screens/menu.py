@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pygame
 
+from ..display import art
 from ..screen import Repeater, Screen
 from ..input import InputEvent
 
@@ -151,22 +152,30 @@ class MainMenu(ListScreen):
         width, height = surface.get_size()
         scale = self.app.scale
 
-        self.fonts.draw(surface, "Ceilidh", (width // 2, int(90 * scale)), int(96 * scale),
-                        ACCENT, bold=True, anchor="center")
-        self.fonts.draw(surface, f"{len(self.app.songs)} songs loaded",
-                        (width // 2, int(150 * scale)), int(28 * scale), (170, 170, 190), anchor="center")
+        logo = art.logo(int(min(width * 0.38, 520 * scale)))
+        if logo is not None:
+            surface.blit(logo, logo.get_rect(midtop=(width // 2, int(24 * scale))))
+            below = int(24 * scale) + logo.get_height()
+        else:
+            self.fonts.draw(surface, "Ceilidh", (width // 2, int(90 * scale)), int(96 * scale),
+                            ACCENT, bold=True, anchor="center")
+            below = int(126 * scale)
 
-        top = int(230 * scale)
+        self.fonts.draw(surface, f"{len(self.app.songs)} songs loaded",
+                        (width // 2, below + int(6 * scale)), int(26 * scale),
+                        (170, 170, 190), anchor="midtop")
+
+        top = below + int(58 * scale)
         for i, (label, _) in enumerate(self.items):
             selected = i == self.index
-            y = top + i * int(60 * scale)
+            y = top + i * int(54 * scale)
             colour = (255, 255, 255) if selected else (165, 165, 185)
             if selected:
-                rect = pygame.Rect(width // 2 - int(220 * scale), y - int(24 * scale),
-                                   int(440 * scale), int(48 * scale))
+                rect = pygame.Rect(width // 2 - int(220 * scale), y - int(22 * scale),
+                                   int(440 * scale), int(44 * scale))
                 pygame.draw.rect(surface, (60, 40, 80), rect, border_radius=8)
                 pygame.draw.rect(surface, ACCENT, rect, 2, border_radius=8)
-            self.fonts.draw(surface, label, (width // 2, y), int(40 * scale), colour,
+            self.fonts.draw(surface, label, (width // 2, y), int(38 * scale), colour,
                             bold=selected, anchor="center")
 
         pads = self.app.input.pad_count()

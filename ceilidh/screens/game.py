@@ -15,6 +15,7 @@ from ..gameplay.playfield import Playfield
 from ..gameplay.demo import build_demo
 from ..input import InputEvent
 from ..screen import Screen
+from ..display import DISPLAY
 from ..display.theme import ACCENT, TEXT
 
 LEAD_IN = 3.0
@@ -222,11 +223,13 @@ class Gameplay(Screen):
     def _draw_countdown(self, surface: pygame.Surface, scale: float) -> None:
         width, height = surface.get_size()
         self.fonts.draw(surface, str(int(-self.song_time) + 1), (width // 2, height // 2),
-                        int(150 * scale), (255, 255, 255), bold=True, anchor="center")
+                        int(150 * scale), (255, 255, 255), bold=True, anchor="center",
+                        role=DISPLAY)
 
     def _draw_demo_badge(self, surface: pygame.Surface, scale: float) -> None:
         width = surface.get_width()
-        badge = self.fonts.render("DEMO", int(30 * scale), (255, 210, 90), bold=True)
+        badge = self.fonts.render("DEMO", int(30 * scale), (255, 210, 90), bold=True,
+                                  role=DISPLAY)
         backing = pygame.Surface((badge.get_width() + int(24 * scale),
                                   badge.get_height() + int(10 * scale)), pygame.SRCALPHA)
         backing.fill((10, 10, 16, 190))

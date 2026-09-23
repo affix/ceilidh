@@ -9,6 +9,8 @@ import pygame
 from ..chart import HOLD, MINE, ROLL
 from ..config import Config
 from ..display import (
+    DISPLAY,
+    art,
     FontBank,
     arrow_surface,
     burst_surface,
@@ -85,6 +87,14 @@ class Playfield:
             self._panels[(size, colour)] = panel
         return panel
 
+    @staticmethod
+    def note_art(size: int, note) -> pygame.Surface:
+        """The painted arrow if we have one, else a quantisation coloured shape."""
+        painted = art.arrow(size, note.column % 4)
+        if painted is not None:
+            return painted
+        return arrow_surface(size, quant_colour(note.beat), note.column % 4)
+
     def geometry(self, size: tuple[int, int]) -> Geometry:
         return layout(size, self.index, self.count, self.columns,
                       self.cfg.scroll_direction == "down")
@@ -124,15 +134,23 @@ class Playfield:
         for column in range(self.columns):
             x = geo.column_x(column)
             bright = lane.flash[column] > 0 or lane.is_held(column)
-            base = receptor_scaled(geo.arrow, column % 4, bright, pulse_size)
+            base = art.receptor(pulse_size, column % 4, bright) or \
+                receptor_scaled(geo.arrow, column % 4, bright, pulse_size)
             surface.blit(base, base.get_rect(center=(x, geo.receptor_y)))
+
             if lane.flash[column] > 0:
                 fade = min(1.0, lane.flash[column] / FLASH_TIME)
-                grown = int(geo.arrow * (1.25 - 0.2 * fade)) // 4 * 4
-                burst = burst_surface(geo.arrow, lane.flash_colour[column], column % 4, grown,
-                                      int(200 * fade) // 16 * 16)
-                surface.blit(burst, burst.get_rect(center=(x, geo.receptor_y)),
-                             special_flags=pygame.BLEND_PREMULTIPLIED)
+                alpha = int(230 * fade) // 16 * 16
+                spark = art.spark(int(geo.arrow * (1.7 - 0.4 * fade)) // 4 * 4, alpha)
+                if spark is not None:
+                    surface.blit(spark, spark.get_rect(center=(x, geo.receptor_y)),
+                                 special_flags=pygame.BLEND_ADD)
+                else:
+                    grown = int(geo.arrow * (1.25 - 0.2 * fade)) // 4 * 4
+                    burst = burst_surface(geo.arrow, lane.flash_colour[column], column % 4,
+                                          grown, int(200 * fade) // 16 * 16)
+                    surface.blit(burst, burst.get_rect(center=(x, geo.receptor_y)),
+                                 special_flags=pygame.BLEND_PREMULTIPLIED)
 
     def _draw_notes(self, surface: pygame.Surface, geo: Geometry, y_for, height: int) -> None:
         lane = self.lane
@@ -164,12 +182,12 @@ class Playfield:
 
             x = geo.column_x(note.column)
             if note.kind == MINE:
-                mine = mine_surface(geo.arrow)
+                mine = art.mine(geo.arrow) or mine_surface(geo.arrow)
                 surface.blit(mine, mine.get_rect(center=(x, y)))
             elif note.kind in (HOLD, ROLL):
                 self._draw_hold(surface, geo, note, x, y, y_for)
             else:
-                arrow = arrow_surface(geo.arrow, quant_colour(note.beat), note.column % 4)
+                arrow = self.note_art(geo.arrow, note)
                 surface.blit(arrow, arrow.get_rect(center=(x, y)))
 
     def _draw_hold(self, surface: pygame.Surface, geo: Geometry, note, x: int, y: float,
@@ -189,7 +207,7 @@ class Playfield:
         if note.hold_done:
             return
         if not note.judged or note.hold_active:
-            head = arrow_surface(geo.arrow, quant_colour(note.beat), note.column % 4)
+            head = self.note_art(geo.arrow, note)
             surface.blit(head, head.get_rect(center=(x, head_y)))
 
     def _draw_judgement(self, surface: pygame.Surface, geo: Geometry) -> None:
@@ -200,12 +218,12 @@ class Playfield:
             size = int(geo.arrow * (0.52 + 0.08 * fade)) // 4 * 4
             self.fonts.draw(surface, lane.judgement, (geo.centre, judge_y), size,
                             JUDGEMENT_COLOUR.get(lane.judgement, (255, 255, 255)),
-                            bold=True, anchor="center")
+                            bold=True, anchor="center", role=DISPLAY)
         if lane.score.combo >= 4:
             size = int(geo.arrow * (0.68 + 0.08 * (lane.combo_timer / COMBO_TIME))) // 4 * 4
             self.fonts.draw(surface, str(lane.score.combo),
                             (geo.centre, judge_y + int(geo.arrow * 0.62)), size,
-                            COMBO_COLOUR, bold=True, anchor="center")
+                            COMBO_COLOUR, bold=True, anchor="center", role=DISPLAY)
 
     def _draw_hud(self, surface: pygame.Surface, geo: Geometry, field: pygame.Rect,
                   scale: float, height: int) -> None:
