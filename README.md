@@ -322,7 +322,7 @@ tools/build-deb.sh --native         # already on Debian, skip Docker, wants root
 The result is about 8.5 MB packed and 40 MB installed. It puts the app in `/opt/ceilidh`, a `ceilidh` and a `ceilidh-ziv` wrapper in `/usr/bin`, a desktop entry for machines with a desktop, and the kiosk unit in `/lib/systemd/system`. Installing it creates a system user called `ceilidh` in the `video`, `render`, `input`, `audio` and `tty` groups, which is what lets it reach the console, the pads and the sound card without a login session.
 
 ```bash
-sudo apt install ./ceilidh_0.1.0_arm64.deb
+sudo apt install ./ceilidh_*_arm64.deb
 sudo systemctl enable --now ceilidh-kiosk
 ```
 

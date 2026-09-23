@@ -1,6 +1,6 @@
 [project]
 name = "ceilidh"
-version = "0.1.0"
+version = "0.0.1-alpha"
 description = "Ceilidh, a two pad dance mat game for macOS and Linux with custom song support"
 requires-python = ">=3.11"
 license = "MIT"
