@@ -12,7 +12,7 @@ set -euo pipefail
 ARCH="arm64"
 OUTPUT="dist"
 IMAGE="debian:bookworm-slim"
-MAINTAINER="Ceilidh <contact@keiran.scot>"
+MAINTAINER='Keiran "Affix" Smith <opensource@keiran.scot>'
 NATIVE=0
 
 usage() {
