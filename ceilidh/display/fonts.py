@@ -87,6 +87,56 @@ class FontBank:
         """Bundled faces we asked for and did not find."""
         return set(self._missing)
 
+    def wrap(self, text: str, size: int, max_width: int, bold: bool = False,
+             role: str = UI, max_lines: int = 0) -> list[str]:
+        """Break text into lines that actually fit, by measuring rather than counting."""
+        font = self.font(size, bold, role)
+
+        def chop(word: str) -> tuple[list[str], str]:
+            """Split a word too wide for any line, returning the full pieces
+            and whatever tail still fits."""
+            pieces: list[str] = []
+            while len(word) > 1 and font.size(word)[0] > max_width:
+                cut = len(word) - 1
+                while cut > 1 and font.size(word[:cut])[0] > max_width:
+                    cut -= 1
+                pieces.append(word[:cut])
+                word = word[cut:]
+            return pieces, word
+
+        lines: list[str] = []
+        current = ""
+        for word in text.split():
+            pieces, word = chop(word)
+            if pieces:
+                if current:
+                    lines.append(current)
+                    current = ""
+                lines.extend(pieces)
+            candidate = f"{current} {word}".strip()
+            if not current or font.size(candidate)[0] <= max_width:
+                current = candidate
+            else:
+                lines.append(current)
+                current = word
+        if current:
+            lines.append(current)
+
+        if max_lines and len(lines) > max_lines:
+            lines = lines[:max_lines]
+            last = lines[-1]
+            while last and font.size(last + "...")[0] > max_width:
+                last = last[:-1]
+            lines[-1] = last.rstrip() + "..."
+        return lines or [""]
+
+    def fit(self, text: str, size: int, max_width: int, bold: bool = False,
+            role: str = UI, minimum: int = 10) -> int:
+        """The largest size at or below this one that keeps the text on one line."""
+        while size > minimum and self.font(size, bold, role).size(text)[0] > max_width:
+            size -= 2
+        return size
+
     def render(
         self,
         text: str,

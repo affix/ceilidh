@@ -44,8 +44,10 @@ class Results(Screen):
                 width // 2 - int(158 * scale), int(40 * scale))))
         self.fonts.draw(surface, "RESULTS", (width // 2, int(40 * scale)), int(56 * scale),
                         (255, 90, 160), bold=True, anchor="center")
-        self.fonts.draw(surface, self.song.display_title[:44], (width // 2, int(92 * scale)),
-                        int(30 * scale), (215, 215, 235), anchor="center")
+        subtitle = self.song.display_title
+        subtitle_size = self.fonts.fit(subtitle, int(30 * scale), int(width * 0.8))
+        self.fonts.draw(surface, subtitle, (width // 2, int(92 * scale)),
+                        subtitle_size, (215, 215, 235), anchor="center")
 
         count = len(self.lanes)
         for index, lane in enumerate(self.lanes):

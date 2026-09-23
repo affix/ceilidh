@@ -56,6 +56,17 @@ class SongSelect(ListScreen):
                     self.preview_song = song
                     play_preview(song.music, song.sample_start, self.cfg.music_volume * 0.7)
 
+    def centred_block(self, surface: pygame.Surface, text: str, pos: tuple[int, int],
+                      size: int, max_width: int, colour: tuple[int, int, int],
+                      bold: bool = False, max_lines: int = 0) -> int:
+        """Draw text centred and wrapped, returning the y below it."""
+        x, y = pos
+        for line in self.fonts.wrap(text, size, max_width, bold=bold, max_lines=max_lines):
+            rect = self.fonts.draw(surface, line, (x, y), size, colour, bold=bold,
+                                   anchor="midtop")
+            y = rect.bottom
+        return y
+
     def banner(self, song) -> pygame.Surface | None:
         if song.banner is None:
             return None
@@ -106,9 +117,10 @@ class SongSelect(ListScreen):
             if selected:
                 pygame.draw.rect(surface, ACCENT, rect, 2, border_radius=6)
             colour = (255, 255, 255) if selected else (170, 170, 190)
-            title = entry.display_title
-            if len(title) > 40:
-                title = title[:38] + "..."
+            room = list_w - int(28 * scale) - self.fonts.render(
+                entry.pack or "", int(20 * scale)).get_width()
+            title = self.fonts.wrap(entry.display_title, int(30 * scale), room,
+                                    bold=selected, max_lines=1)[0]
             self.fonts.draw(surface, title, (list_x + int(14 * scale), y), int(30 * scale),
                             colour, bold=selected, anchor="midleft")
             self.fonts.draw(surface, entry.pack or "", (list_x + list_w - int(14 * scale), y),
@@ -129,12 +141,14 @@ class SongSelect(ListScreen):
             surface.blit(scaled, (panel.left + int(16 * scale), y))
             y += target_h + int(14 * scale)
 
-        self.fonts.draw(surface, song.title[:28], (panel.centerx, y), int(34 * scale),
-                        (255, 255, 255), bold=True, anchor="midtop")
-        y += int(38 * scale)
-        self.fonts.draw(surface, song.artist[:32], (panel.centerx, y), int(24 * scale),
-                        (180, 180, 200), anchor="midtop")
-        y += int(34 * scale)
+        inner = panel.width - int(28 * scale)
+        y = self.centred_block(surface, song.title, (panel.centerx, y), int(32 * scale),
+                               inner, (255, 255, 255), bold=True, max_lines=3)
+        y += int(4 * scale)
+        if song.artist:
+            y = self.centred_block(surface, song.artist, (panel.centerx, y), int(22 * scale),
+                                   inner, (180, 180, 200), max_lines=2)
+        y += int(8 * scale)
         self.fonts.draw(surface, f"BPM {song.timing.display_bpm()}", (panel.centerx, y),
                         int(24 * scale), (160, 200, 255), anchor="midtop")
         y += int(36 * scale)
@@ -262,8 +276,10 @@ class DifficultySelect(Screen):
         scale = self.app.scale
         charts = self.charts()
 
-        self.fonts.draw(surface, self.song.display_title[:44], (width // 2, int(56 * scale)),
-                        int(46 * scale), (255, 255, 255), bold=True, anchor="center")
+        headline = self.song.display_title
+        headline_size = self.fonts.fit(headline, int(46 * scale), int(width * 0.86), bold=True)
+        self.fonts.draw(surface, headline, (width // 2, int(56 * scale)),
+                        headline_size, (255, 255, 255), bold=True, anchor="center")
         self.fonts.draw(surface, f"{self.song.artist}   BPM {self.song.timing.display_bpm()}",
                         (width // 2, int(96 * scale)), int(26 * scale), (170, 170, 195), anchor="center")
 
@@ -283,8 +299,10 @@ class DifficultySelect(Screen):
             label = f"P{player + 1}"
             self.fonts.draw(surface, label, (column_x, int(196 * scale)), int(34 * scale),
                             (255, 255, 255) if joined else (110, 110, 130), bold=True, anchor="center")
-            self.fonts.draw(surface, self.app.input.device_name(player)[:22],
-                            (column_x, int(224 * scale)), int(18 * scale), (130, 130, 155), anchor="center")
+            pad_name = self.fonts.wrap(self.app.input.device_name(player), int(18 * scale),
+                                       int(340 * scale), max_lines=1)[0]
+            self.fonts.draw(surface, pad_name, (column_x, int(224 * scale)),
+                            int(18 * scale), (130, 130, 155), anchor="center")
 
             if not joined:
                 self.fonts.draw(surface, "press START to join", (column_x, int(300 * scale)),

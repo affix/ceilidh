@@ -213,11 +213,12 @@ class Gameplay(Screen):
         pygame.draw.rect(surface, (20, 20, 30), (0, 0, width, strip))
         pygame.draw.rect(surface, ACCENT, (0, 0, int(width * done), strip))
 
-        title = self.song.display_title[:54]
+        title = self.song.display_title
+        size = self.fonts.fit(title, int(22 * scale), int(width * 0.6), bold=True)
         y = strip + int(4 * scale)
-        self.fonts.draw(surface, title, (width // 2 + 2, y + 2), int(22 * scale),
+        self.fonts.draw(surface, title, (width // 2 + 2, y + 2), size,
                         (0, 0, 0), bold=True, anchor="midtop")
-        self.fonts.draw(surface, title, (width // 2, y), int(22 * scale), TEXT,
+        self.fonts.draw(surface, title, (width // 2, y), size, TEXT,
                         bold=True, anchor="midtop")
 
     def _draw_countdown(self, surface: pygame.Surface, scale: float) -> None:
