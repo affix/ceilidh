@@ -140,8 +140,10 @@ class Playfield:
 
             if lane.flash[column] > 0:
                 fade = min(1.0, lane.flash[column] / FLASH_TIME)
-                alpha = int(230 * fade) // 16 * 16
-                spark = art.spark(int(geo.arrow * (1.7 - 0.4 * fade)) // 4 * 4, alpha)
+                # a flash on the panel, not a starburst over it: it starts a
+                # touch smaller than the arrow and opens slightly as it fades
+                alpha = int(185 * fade) // 16 * 16
+                spark = art.spark(int(geo.arrow * (1.18 - 0.22 * fade)) // 4 * 4, alpha)
                 if spark is not None:
                     surface.blit(spark, spark.get_rect(center=(x, geo.receptor_y)),
                                  special_flags=pygame.BLEND_ADD)

@@ -62,16 +62,40 @@ def arrow(size: int, direction: int) -> pygame.Surface | None:
     return square(ARROW_FILES[direction % 4], size)
 
 
+def _outline_mask(surface: pygame.Surface, band: int) -> pygame.mask.Mask:
+    """The outer band of a shape: itself, minus an eroded copy of itself."""
+    shape = pygame.mask.from_surface(surface, 120)
+    eroded = shape
+    for _ in range(band):
+        step = eroded
+        for offset in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            step = step.overlap_mask(eroded, offset)
+        eroded = step
+    ring = shape.copy()
+    ring.erase(eroded, (0, 0))
+    return ring
+
+
 @lru_cache(maxsize=64)
 def receptor(size: int, direction: int, bright: bool) -> pygame.Surface | None:
-    """The same arrow, knocked back so it reads as a target rather than a note."""
+    """The arrow's outer frame with the knotwork cut out of the middle.
+
+    A hollow target reads as somewhere to land rather than as a note that has
+    stopped moving, which is the whole job of a receptor.
+    """
     base = arrow(size, direction)
     if base is None:
         return None
-    shaded = base.copy()
-    shade = (170, 170, 180) if bright else (64, 64, 74)
-    shaded.fill((*shade, 255), special_flags=pygame.BLEND_RGBA_MULT)
-    return shaded
+
+    ring = _outline_mask(base, max(2, round(size / 13)))
+    cut = ring.to_surface(setcolor=(255, 255, 255, 255), unsetcolor=(0, 0, 0, 0))
+
+    frame = base.copy()
+    frame.blit(cut, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+    shade = (255, 255, 255) if bright else (125, 125, 135)
+    if not bright:
+        frame.fill((*shade, 255), special_flags=pygame.BLEND_RGBA_MULT)
+    return frame
 
 
 @lru_cache(maxsize=128)
