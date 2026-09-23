@@ -8,6 +8,8 @@ A **dance mat game** is the arrow scrolling, foot stomping thing we all remember
 
 It reads StepMania simfiles, so the enormous back catalogue of community packs works out of the box, and it will also generate a playable chart from any audio file we point it at. In this README we will get it installed, get both pads bound, add some songs, and calibrate the timing so that stepping on the beat actually scores like stepping on the beat.
 
+![Two players on separate difficulties of the same song](docs/screenshots/gameplay.png)
+
 ## What do we need?
 
 * Python 3.11 or newer, and [uv](https://docs.astral.sh/uv/) for dependency management.
@@ -50,18 +52,28 @@ Konami pads report the four panels on the d-pad hat, with Start on button 7 and 
 | S | Swap the pads between player one and player two |
 | ESC | Save and go back |
 
+![The pad binding screen, with a live panel test on the right](docs/screenshots/bindings.png)
+
 There is a keyboard fallback wired up at all times, which is handy for testing a chart without getting off the sofa. Player one is on the arrow keys with Enter and Escape, player two is on WASD with Tab and Backspace.
 
 ## Playing a song
 
 Navigation is the same everywhere: the arrows move, Start selects, Back goes up a level. Any connected pad can drive the menus.
 
+![The song wheel, with the BPM and difficulty ladder for the highlighted song](docs/screenshots/song-select.png)
+
 On the song wheel, up and down browse, left and right jump eight songs at a time, and the panel on the right shows the banner, the BPM and every difficulty in the file. Start opens the difficulty screen, where each player picks their own chart with up and down and locks it in with Start. A second player who did not join automatically can press Start to join, and Back to drop out again. Left and right toggle between the two modes:
 
 * **Versus** gives each player their own four panel chart, their own life bar, their own scroll speed and their own score. The two players do not need to pick the same difficulty.
 * **Doubles** gives player one all eight panels across both pads, using the song's `dance-double` charts. Songs without a doubles chart stay locked to versus.
 
+![Choosing a chart, with the mode toggle above it](docs/screenshots/difficulty.png)
+
+![Doubles: one player across all eight panels](docs/screenshots/doubles.png)
+
 The song starts after a three second count in. Start pauses, and `Q` while paused quits back to the song list. When the last note has gone past, the results screen breaks down every judgement, the hold and mine counts, the max combo and the mean timing error, then Start takes us back to the song wheel.
+
+![The results screen, side by side for both players](docs/screenshots/results.png)
 
 ## Watching it play itself
 
