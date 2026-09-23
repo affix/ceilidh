@@ -301,12 +301,16 @@ class DifficultySelect(Screen):
                 if selected:
                     border = (90, 230, 120) if self.locked[player] else ACCENT
                     pygame.draw.rect(surface, border, rect, 3, border_radius=8)
+                # three zones across the row rather than a centred label that
+                # the difficulty name can grow into
+                meter_left = rect.right - int(14 * scale)
+                self.fonts.draw(surface, str(chart.meter), (meter_left, y),
+                                int(32 * scale), chart.colour, bold=True, anchor="midright")
+                steps_right = meter_left - int(34 * scale)
+                self.fonts.draw(surface, f"{chart.tap_count()} steps", (steps_right, y),
+                                int(18 * scale), (160, 160, 185), anchor="midright")
                 self.fonts.draw(surface, chart.difficulty, (rect.left + int(16 * scale), y),
-                                int(30 * scale), chart.colour, bold=selected, anchor="midleft")
-                self.fonts.draw(surface, str(chart.meter), (rect.right - int(16 * scale), y),
-                                int(34 * scale), chart.colour, bold=True, anchor="midright")
-                self.fonts.draw(surface, f"{chart.tap_count()} steps", (rect.centerx, y),
-                                int(20 * scale), (160, 160, 185), anchor="center")
+                                int(26 * scale), chart.colour, bold=selected, anchor="midleft")
 
             if self.locked[player]:
                 self.fonts.draw(surface, "READY", (column_x, top + len(charts) * int(56 * scale) + int(16 * scale)),
