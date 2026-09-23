@@ -1,5 +1,8 @@
 # Ceilidh
 
+[![CI](https://github.com/affix/ceilidh/actions/workflows/ci.yml/badge.svg)](https://github.com/affix/ceilidh/actions/workflows/ci.yml)
+[![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
+
 A two pad dance game for macOS and Linux, built for a pair of Konami Xbox 360 dance pads and for playing whatever songs we feel like adding. A **ceilidh** is a social dance where nobody gets to stay in their seat, which is roughly the intent here.
 
 ## What is this?
@@ -325,6 +328,12 @@ Score is the familiar dance points percentage: a Fantastic is worth 5, an Excell
 **The background video does not play.** Check `ffmpeg -version` actually runs. A broken Homebrew install is the usual culprit on macOS, where an upgrade can leave `ffmpeg` linked against a library version that is no longer there; `brew reinstall ffmpeg` fixes it. The game checks that ffmpeg both exists and runs before using it, and quietly falls back to the background image when it does not.
 
 **A song is missing from the wheel.** `--list-songs` prints the reason for every file it skipped. The usual cause is a simfile with no audio next to it, or a pack nested more than four directories deep.
+
+## Licence
+
+MIT. See [LICENSE](LICENSE).
+
+Songs are not covered by it: simfiles and their audio belong to whoever made them, which is why the song folders are kept out of this repository.
 
 ## Project layout
 

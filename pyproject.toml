@@ -3,6 +3,8 @@ name = "ceilidh"
 version = "0.1.0"
 description = "Ceilidh, a two pad dance mat game for macOS and Linux with custom song support"
 requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
 dependencies = [
     "pygame-ce>=2.5.0",
 ]

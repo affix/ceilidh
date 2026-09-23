@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: tests (python ${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install the project
+        run: uv sync --locked --group dev --python ${{ matrix.python }}
+
+      # the suite pins SDL to its dummy drivers, so there is no display or
+      # sound card involved and none is installed here
+      - name: Run the tests
+        run: uv run pytest
+
+      - name: Check the command line starts
+        run: |
+          uv run ceilidh --help
+          uv run ceilidh --list-songs
+
+  package:
+    name: debian package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the .deb
+        run: ./tools/build-deb.sh --arch amd64
+
+      - name: Show what came out
+        run: dpkg-deb --info dist/*.deb
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ceilidh-deb
+          path: dist/*.deb
+          if-no-files-found: error
