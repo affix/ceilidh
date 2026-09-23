@@ -19,7 +19,7 @@ It reads StepMania simfiles, so the enormous back catalogue of community packs w
 
 * Python 3.11 or newer, and [uv](https://docs.astral.sh/uv/) for dependency management.
 * Two Konami (or any SDL compatible) Xbox 360 dance pads. Generic USB pads work too, they just need binding once.
-* macOS on Apple silicon or Intel, or Linux including Raspberry Pi OS on a Pi 4.
+* macOS on Apple silicon or Intel, Windows 10 or 11, or Linux including Raspberry Pi OS on a Pi 4.
 * Optionally `ffmpeg`, which plays the background videos that ship with a lot of simfiles, and which the chart generator falls back to for audio formats libsndfile will not open.
 
 Nothing needs to be installed system wide. `uv` builds a virtual environment in the project directory and pulls a pygame-ce wheel with SDL2 already bundled, which is what saves us from hunting down an Xbox controller kext on a modern Mac.
@@ -43,7 +43,7 @@ If the game starts but the song list is empty, `--list-songs` will print every d
 
 ## Do the pads work?
 
-Wired Xbox 360 controllers do not speak plain USB HID, which historically meant a kernel extension on macOS and a lot of swearing. SDL2 now ships its own HIDAPI driver for them, and the game enables it explicitly at startup, so both pads should appear without any driver install. On Linux the in tree `xpad` module has handled these pads for years and there is nothing to do at all.
+Wired Xbox 360 controllers do not speak plain USB HID, which historically meant a kernel extension on macOS and a lot of swearing. SDL2 now ships its own HIDAPI driver for them, and the game enables it explicitly at startup, so both pads should appear without any driver install. On Linux the in tree `xpad` module has handled these pads for years and there is nothing to do at all, and on Windows they arrive through XInput, which is already part of the operating system. The game asks for SDL's own driver everywhere except Windows, where taking it over would mean replacing a driver that already works.
 
 Run `--list-pads` first. Two entries, each with a GUID and a button/hat/axis count, means we are in business. The first pad found becomes player one, the second becomes player two, and the assignment is remembered by GUID so it survives a replug.
 
@@ -205,6 +205,23 @@ That writes `songs/track/chart.json` with easy, medium and hard charts and a cop
 
 The result is an ordinary `chart.json`, so anything it gets wrong can be fixed by hand afterwards.
 
+## Running it on Windows
+
+Everything works the same way, with three differences worth knowing.
+
+The pads need no driver at all. Windows has spoken XInput since it shipped, so a Konami mat turns up the moment it is plugged in, with the panels on the d-pad and Start and Back where the defaults expect them. `--list-pads` will confirm it.
+
+Settings go to `%APPDATA%\ceilidh\config.json` rather than a dotfile, and songs are looked for in `%USERPROFILE%\Music\Ceilidh` and `%LOCALAPPDATA%\ceilidh\songs` as well as the `songs` folder next to the game. Simfile archives are full of titles containing `?` and `:`, which Windows will not accept in a filename, so the downloader quietly rewrites those characters when it unpacks.
+
+Background video needs `ffmpeg` on the `PATH` as it does everywhere else; `winget install ffmpeg` is the easy route. Without it the game falls back to the song's background image.
+
+```powershell
+uv sync
+uv run ceilidh
+```
+
+There is no installer. The Debian package is for the Pi, and on Windows we run it from the checkout, which is also how the tests run in CI.
+
 ## Getting the timing right
 
 Every display and every audio stack adds latency, and on a dance mat the pad itself adds some more. **Calibrate Offset** on the main menu measures the lot in one go: a click plays twice a second, we step on the beat sixteen times, and the trimmed median of the error becomes the global offset. Stepping consistently matters far more than stepping accurately here, since a consistent bias is exactly what we are trying to cancel.
@@ -307,7 +324,7 @@ uv sync
 uv run pytest
 ```
 
-There are 114 unit tests across the timing map, the judgement windows and scoring, the lane state machine, both simfile parsers, the song models, the library scanner, the config file and the pad binding syntax. They never open a window or a sound device: `tests/conftest.py` pins SDL to its dummy drivers, so a test run is always silent.
+There are 227 unit tests across the timing map, the judgement windows and scoring, the lane state machine, both simfile parsers, the song models, the library scanner, the config file and the pad binding syntax. They never open a window or a sound device: `tests/conftest.py` pins SDL to its dummy drivers, so a test run is always silent. CI runs them on Linux, macOS and Windows, which is what keeps the cross platform claims honest.
 
 ## How does scoring work?
 

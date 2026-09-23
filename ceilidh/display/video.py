@@ -11,6 +11,7 @@ from __future__ import annotations
 import queue
 import shutil
 import subprocess
+import sys
 import threading
 from pathlib import Path
 
@@ -38,7 +39,9 @@ def available() -> bool:
             _usable = False
         else:
             try:
-                probe = subprocess.run([binary, "-version"], capture_output=True, timeout=5)
+                probe = subprocess.run([binary, "-version"], capture_output=True, timeout=5,
+                                       **({"creationflags": getattr(subprocess, "CREATE_NO_WINDOW", 0)}
+                                          if sys.platform == "win32" else {}))
                 _usable = probe.returncode == 0
             except (OSError, subprocess.SubprocessError):
                 _usable = False
@@ -99,9 +102,14 @@ class VideoBackground:
                     f"crop={self.width}:{self.height},fps={self.fps}"),
             "-f", "rawvideo", "-pix_fmt", "rgb24", "-",
         ]
+        extra = {}
+        if sys.platform == "win32":
+            # otherwise every decode pops a console window in front of the game
+            extra["creationflags"] = getattr(subprocess, "CREATE_NO_WINDOW", 0)
         try:
             return subprocess.Popen(command, stdout=subprocess.PIPE,
-                                    stderr=subprocess.DEVNULL, bufsize=self.frame_bytes)
+                                    stderr=subprocess.DEVNULL, bufsize=self.frame_bytes,
+                                    **extra)
         except OSError:
             return None
 

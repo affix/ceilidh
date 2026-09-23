@@ -96,7 +96,9 @@ def test_an_older_config_with_width_and_height_becomes_a_resolution():
 def test_settings_are_carried_over_from_the_previous_name(tmp_path, monkeypatch, capsys):
     monkeypatch.delenv("CEILIDH_CONFIG_DIR", raising=False)
     monkeypatch.delenv("DANCEMAT_CONFIG_DIR", raising=False)
-    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.delenv("XDG_CONFIG_HOME", raising=False)
+    for name in ("HOME", "USERPROFILE", "APPDATA", "LOCALAPPDATA"):
+        monkeypatch.setenv(name, str(tmp_path))
 
     legacy = config_module._base_dirs("dancemat")[0] / "config.json"
     legacy.parent.mkdir(parents=True)

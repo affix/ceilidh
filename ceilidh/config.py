@@ -46,11 +46,16 @@ DEFAULT_KEYBOARD: list[dict[str, list[str]]] = [
 
 
 def _base_dirs(name: str) -> list[Path]:
+    """Where settings live, most idiomatic first, with ~/.config as a backstop."""
     out: list[Path] = []
     xdg = os.environ.get("XDG_CONFIG_HOME")
     if xdg:
         out.append(Path(xdg) / name)
-    if sys.platform == "darwin":
+    if sys.platform == "win32":
+        appdata = os.environ.get("APPDATA")
+        if appdata:
+            out.append(Path(appdata) / name)
+    elif sys.platform == "darwin":
         out.append(Path.home() / "Library" / "Application Support" / name)
     out.append(Path.home() / ".config" / name)
     return out

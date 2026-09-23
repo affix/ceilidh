@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -11,9 +12,13 @@ SIMFILE_EXT = (".ssc", ".sm", ".json")
 
 def default_song_paths() -> list[Path]:
     paths = [Path.cwd() / "songs", Path(__file__).resolve().parent.parent / "songs"]
-    if sys.platform == "darwin":
+    if sys.platform in ("darwin", "win32"):
         paths.append(Path.home() / "Music" / "Ceilidh")
         paths.append(Path.home() / "Music" / "DanceMat")
+    if sys.platform == "win32":
+        local = os.environ.get("LOCALAPPDATA")
+        if local:
+            paths.append(Path(local) / "ceilidh" / "songs")
     paths.append(Path.home() / "Ceilidh" / "songs")
     # where the Debian package keeps them
     paths.append(Path("/var/lib/ceilidh/songs"))

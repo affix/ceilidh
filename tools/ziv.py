@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import html
 import http.cookiejar
+import os
 import re
 import shutil
 import sys
@@ -33,6 +34,8 @@ USER_AGENT = "ceilidh-ziv/0.1 (personal simfile downloader; stdlib urllib)"
 SIMFILE_EXT = (".ssc", ".sm", ".dwi")
 VIDEO_EXT = {".avi", ".mpg", ".mpeg", ".mp4", ".mkv", ".ogv", ".wmv", ".m2v", ".flv"}
 JUNK = ("__MACOSX/", ".DS_Store", "Thumbs.db")
+# characters Windows will not put in a filename, which song titles are full of
+WINDOWS_ILLEGAL = re.compile(r'[<>:"|?*\x00-\x1f]')
 
 _ROW = re.compile(r"<tr[^>]*>(.*?)</tr>", re.S | re.I)
 _LINK = re.compile(r'<a\s[^>]*?href="([^"]+)"[^>]*>(.*?)</a>', re.S | re.I)
@@ -367,6 +370,10 @@ def safe_path(name: str) -> PurePosixPath | None:
         return None
     if any(junk in name for junk in JUNK):
         return None
+    if os.name == "nt":
+        # a pack called "What?" or "3:00 AM" cannot be written out as is
+        parts = [WINDOWS_ILLEGAL.sub("_", part).rstrip(" .") or "_" for part in path.parts]
+        path = PurePosixPath(*parts)
     return path
 
 

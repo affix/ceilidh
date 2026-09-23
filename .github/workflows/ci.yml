@@ -12,12 +12,16 @@ concurrency:
 
 jobs:
   test:
-    name: tests (python ${{ matrix.python }})
-    runs-on: ubuntu-latest
+    name: tests (${{ matrix.os }}, python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.11", "3.12"]
+        include:
+          - { os: ubuntu-latest, python: "3.11" }
+          - { os: ubuntu-latest, python: "3.12" }
+          - { os: macos-latest, python: "3.12" }
+          - { os: windows-latest, python: "3.12" }
     steps:
       - uses: actions/checkout@v4
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import sys
 import time
 from pathlib import Path
 
@@ -17,13 +18,19 @@ from . import library
 
 def prepare_sdl() -> None:
     """Hints that have to be set before pygame.init()."""
-    os.environ.setdefault("SDL_JOYSTICK_HIDAPI", "1")
-    os.environ.setdefault("SDL_JOYSTICK_HIDAPI_XBOX", "1")
-    os.environ.setdefault("SDL_JOYSTICK_HIDAPI_XBOX_360", "1")
     os.environ.setdefault("SDL_JOYSTICK_ALLOW_BACKGROUND_EVENTS", "1")
     # a dedicated joystick thread means pad events are queued as they arrive
     # instead of only when the main loop pumps
     os.environ.setdefault("SDL_JOYSTICK_THREAD", "1")
+    if sys.platform == "win32":
+        # Windows reaches Xbox pads through XInput, which already sees the
+        # mats. Forcing HIDAPI on here would mean replacing the driver.
+        return
+    # macOS has no in-box driver for a wired 360 pad, and Linux only exposes
+    # some of them through hidraw, so ask SDL for its own driver
+    os.environ.setdefault("SDL_JOYSTICK_HIDAPI", "1")
+    os.environ.setdefault("SDL_JOYSTICK_HIDAPI_XBOX", "1")
+    os.environ.setdefault("SDL_JOYSTICK_HIDAPI_XBOX_360", "1")
 
 
 class App:
