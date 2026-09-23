@@ -1,0 +1,32 @@
+[Unit]
+Description=Ceilidh dance mat kiosk
+Documentation=file:///usr/share/doc/ceilidh/README.md
+After=multi-user.target sound.target
+# the login prompt would fight us for the console
+Conflicts=getty@tty1.service
+
+[Service]
+Type=simple
+User=ceilidh
+Group=ceilidh
+SupplementaryGroups=video render input audio tty
+WorkingDirectory=/var/lib/ceilidh
+Environment=HOME=/var/lib/ceilidh
+RuntimeDirectory=ceilidh
+Environment=XDG_RUNTIME_DIR=/run/ceilidh
+# SDL picks x11 or wayland when a desktop session is running and kmsdrm on a
+# bare console. Force one here if it guesses wrong:
+#Environment=SDL_VIDEODRIVER=kmsdrm
+#Environment=SDL_AUDIODRIVER=alsa
+ExecStart=/usr/bin/ceilidh --kiosk
+Restart=always
+RestartSec=3
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+StandardInput=tty
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

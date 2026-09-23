@@ -1,0 +1,38 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+  configure)
+    if ! getent passwd ceilidh >/dev/null 2>&1; then
+      adduser --system --group --home /var/lib/ceilidh --no-create-home \
+              --shell /usr/sbin/nologin --gecos "Ceilidh dance mat" ceilidh >/dev/null
+    fi
+    # the console, the pads and the sound card
+    for group in video render input audio tty; do
+      if getent group "$group" >/dev/null 2>&1; then
+        adduser ceilidh "$group" >/dev/null 2>&1 || true
+      fi
+    done
+
+    mkdir -p /var/lib/ceilidh/songs
+    chown -R ceilidh:ceilidh /var/lib/ceilidh
+    chmod 2775 /var/lib/ceilidh/songs
+
+    if [ -d /run/systemd/system ]; then
+      systemctl daemon-reload >/dev/null 2>&1 || true
+    fi
+
+    cat <<'EOM'
+
+Ceilidh is installed. Put songs in /var/lib/ceilidh/songs, then:
+
+  ceilidh                                  play it now
+  ceilidh-ziv search "song name"           find simfiles
+  sudo systemctl enable --now ceilidh-kiosk    boot straight into it
+
+The kiosk unit takes over tty1, so enable it on a machine you reach over ssh.
+EOM
+    ;;
+esac
+
+exit 0

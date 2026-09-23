@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+*.deb
+
+# virtualenvs (uv.lock is committed on purpose)
+.venv/
+venv/
+
+# tool caches
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+
+# editors and OS litter
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Songs are simfiles and audio: third party content, large, and personal to
+# whoever installed the game. The folder itself is kept so a fresh clone still
+# has somewhere to put them.
+songs/*
+!songs/.gitkeep
+
+# local settings written by the game when run from a checkout
+config.json

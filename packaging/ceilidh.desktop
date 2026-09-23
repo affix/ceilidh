@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Ceilidh
+GenericName=Dance Mat Game
+Comment=Two pad dance mat game with custom song support
+Exec=ceilidh
+Terminal=false
+Categories=Game;ArcadeGame;
+Keywords=dance;rhythm;stepmania;dancepad;

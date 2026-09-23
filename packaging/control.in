@@ -1,0 +1,16 @@
+Package: ceilidh
+Version: @VERSION@
+Architecture: @ARCH@
+Maintainer: @MAINTAINER@
+Section: games
+Priority: optional
+Depends: libc6, libasound2 | libasound2t64, libdrm2, libgbm1
+Recommends: ffmpeg
+Installed-Size: @SIZE@
+Description: Two pad dance mat game with custom song support
+ Ceilidh is a dance mat game for a pair of dance pads, built for Konami
+ Xbox 360 pads but happy with anything SDL can see. It reads StepMania
+ simfiles, plays background videos, and can generate charts from audio.
+ .
+ It ships a kiosk service so a Raspberry Pi can boot straight into an
+ attract loop with no desktop underneath it.

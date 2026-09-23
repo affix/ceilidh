@@ -1,0 +1,33 @@
+[project]
+name = "ceilidh"
+version = "0.1.0"
+description = "Ceilidh, a two pad dance mat game for macOS and Linux with custom song support"
+requires-python = ">=3.11"
+dependencies = [
+    "pygame-ce>=2.5.0",
+]
+
+[project.optional-dependencies]
+autochart = [
+    "librosa>=0.10.2",
+    "numpy>=1.26",
+    "soundfile>=0.12",
+]
+
+[project.scripts]
+ceilidh = "ceilidh.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore:no fast renderer available"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["ceilidh"]

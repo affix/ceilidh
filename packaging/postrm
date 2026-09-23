@@ -1,0 +1,29 @@
+#!/bin/sh
+set -e
+
+case "$1" in
+  purge)
+    if [ -d /run/systemd/system ]; then
+      systemctl daemon-reload >/dev/null 2>&1 || true
+    fi
+    # the bundled virtualenv writes .pyc files that dpkg never knew about
+    rm -rf /opt/ceilidh
+    # never delete somebody's song library on the way out
+    if [ -d /var/lib/ceilidh/songs ] && [ -n "$(ls -A /var/lib/ceilidh/songs 2>/dev/null)" ]; then
+      echo "leaving /var/lib/ceilidh/songs in place, it still has songs in it"
+      rm -f /var/lib/ceilidh/config.json 2>/dev/null || true
+    else
+      rm -rf /var/lib/ceilidh
+    fi
+    if getent passwd ceilidh >/dev/null 2>&1; then
+      deluser --system ceilidh >/dev/null 2>&1 || true
+    fi
+    ;;
+  remove|upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+    if [ -d /run/systemd/system ]; then
+      systemctl daemon-reload >/dev/null 2>&1 || true
+    fi
+    ;;
+esac
+
+exit 0
