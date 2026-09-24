@@ -111,7 +111,15 @@ jobs:
       - name: Write the notes
         shell: bash
         run: |
-          cat > notes.md <<'NOTES'
+          # anything worth calling out for this tag specifically
+          highlights="packaging/notes/${GITHUB_REF_NAME}.md"
+          if [ -f "$highlights" ]; then
+            cat "$highlights" > notes.md
+            printf '\n' >> notes.md
+          else
+            : > notes.md
+          fi
+          cat >> notes.md <<'NOTES'
           ## Downloads
 
           | Platform | File |
