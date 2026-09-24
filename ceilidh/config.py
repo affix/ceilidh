@@ -142,6 +142,7 @@ class Config:
     constant_scroll: bool = False
     timing_scale: float = 1.0
     no_fail: bool = True
+    casual_scoring: bool = False
     kiosk: bool = False
     attract_seconds: float = 45.0
     show_fps: bool = False
@@ -199,6 +200,7 @@ class Config:
             "constant_scroll": self.constant_scroll,
             "timing_scale": self.timing_scale,
             "no_fail": self.no_fail,
+            "casual_scoring": self.casual_scoring,
             "kiosk": self.kiosk,
             "attract_seconds": self.attract_seconds,
             "show_fps": self.show_fps,
@@ -216,7 +218,7 @@ class Config:
             "resolution", "fullscreen", "fps", "vsync", "audio_buffer",
             "background_video", "background_dim", "video_fps", "video_height",
             "music_volume", "sfx_volume", "global_offset_ms", "scroll_direction",
-            "constant_scroll", "timing_scale", "no_fail", "show_fps", "song_paths",
+            "constant_scroll", "timing_scale", "no_fail", "casual_scoring", "show_fps", "song_paths",
             "kiosk", "attract_seconds",
         ):
             if key in data:

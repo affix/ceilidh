@@ -115,6 +115,8 @@ class PlayerScore:
     possible_points: float = 0.0
     life: float = 0.5
     failed: bool = False
+    #: casual play never takes points away, so misses only cost what they didn't earn
+    casual: bool = False
     errors: list[float] = field(default_factory=list)
 
     def add(self, judgement: str, error: float | None = None) -> None:
@@ -125,7 +127,8 @@ class PlayerScore:
         elif judgement == HOLD_NG:
             self.holds_ng += 1
 
-        self.dance_points += POINTS.get(judgement, 0.0)
+        points = POINTS.get(judgement, 0.0)
+        self.dance_points += max(0.0, points) if self.casual else points
         if error is not None and judgement not in (MISS, HOLD_OK, HOLD_NG):
             self.errors.append(error)
 
@@ -139,7 +142,8 @@ class PlayerScore:
 
     def add_mine(self) -> None:
         self.mines_hit += 1
-        self.dance_points += MINE_POINTS
+        if not self.casual:
+            self.dance_points += MINE_POINTS
         self.life = max(0.0, min(1.0, self.life + MINE_LIFE))
 
     @property

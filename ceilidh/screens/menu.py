@@ -210,6 +210,7 @@ class OptionsScreen(ListScreen):
             "Speed Mode",
             "Timing Windows",
             "No Fail",
+            "Scoring",
             "Music Volume",
             "Global Offset",
             "Resolution",
@@ -244,6 +245,8 @@ class OptionsScreen(ListScreen):
             cfg.timing_scale = max(0.5, min(2.0, round(cfg.timing_scale + delta * 0.1, 2)))
         elif item == "No Fail":
             cfg.no_fail = not cfg.no_fail
+        elif item == "Scoring":
+            cfg.casual_scoring = not cfg.casual_scoring
         elif item == "Music Volume":
             cfg.music_volume = max(0.0, min(1.0, round(cfg.music_volume + delta * 0.05, 2)))
         elif item == "Global Offset":
@@ -274,6 +277,7 @@ class OptionsScreen(ListScreen):
             "Speed Mode": "CONSTANT (CMod)" if cfg.constant_scroll else "BEAT (XMod)",
             "Timing Windows": f"{cfg.timing_scale:.1f}x",
             "No Fail": "ON" if cfg.no_fail else "OFF",
+            "Scoring": "CASUAL" if cfg.casual_scoring else "ARCADE",
             "Music Volume": f"{int(cfg.music_volume * 100)}%",
             "Global Offset": f"{cfg.global_offset_ms:+.1f} ms",
             "Show FPS": "ON" if cfg.show_fps else "OFF",
