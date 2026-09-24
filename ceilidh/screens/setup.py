@@ -225,7 +225,7 @@ class CalibrateScreen(Screen):
                 self.app.pop()
                 return
             if ev.action == "start" and self.result is not None:
-                self.cfg.global_offset_ms = round(self.cfg.global_offset_ms + self.result * 1000.0, 1)
+                self.cfg.global_offset_ms = self.suggested_offset_ms()
                 self.cfg.save()
                 self.app.pop()
                 return
@@ -238,6 +238,11 @@ class CalibrateScreen(Screen):
                 if len(self.samples) >= self.NEEDED:
                     trimmed = sorted(self.samples)[2:-2] or self.samples
                     self.result = statistics.median(trimmed)
+
+    def suggested_offset_ms(self) -> float:
+        # the offset is added to song time, so stepping late means the song
+        # has to be read as earlier: subtract the error rather than add it
+        return round(self.cfg.global_offset_ms - (self.result or 0.0) * 1000.0, 1)
 
     def handle_events(self, events: list[pygame.event.Event]) -> None:
         for event in events:
@@ -283,8 +288,7 @@ class CalibrateScreen(Screen):
                         (width // 2, height - int(120 * scale)), int(26 * scale),
                         (170, 170, 200), anchor="center")
         if self.result is not None:
-            new_value = self.cfg.global_offset_ms + self.result * 1000.0
-            self.fonts.draw(surface, f"suggested {new_value:+.1f} ms - START to apply",
+            self.fonts.draw(surface, f"suggested {self.suggested_offset_ms():+.1f} ms - START to apply",
                             (width // 2, height - int(80 * scale)), int(30 * scale),
                             (110, 235, 130), bold=True, anchor="center")
         self.fonts.draw(surface, "R restart   BACK cancel",

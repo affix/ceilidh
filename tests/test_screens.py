@@ -9,6 +9,7 @@ from ceilidh.screens.game import Gameplay
 from ceilidh.screens.menu import MainMenu, OptionsScreen
 from ceilidh.screens.results import Results
 from ceilidh.screens.select import DifficultySelect, SongSelect
+from ceilidh.screens.setup import CalibrateScreen
 
 
 def press(player, action):
@@ -288,3 +289,17 @@ def test_results_go_back_past_the_difficulty_screen_to_the_songs(app):
     results.update(1.0)
     results.handle_input([press(0, "start")])
     assert app.screens[-1] is wheel
+
+
+def test_calibrating_late_steps_moves_the_offset_so_they_judge_on_time(app):
+    screen = CalibrateScreen(app)
+    app.push(screen)
+    for beat in range(CalibrateScreen.NEEDED):
+        screen.last_click = 100.0 + beat * CalibrateScreen.INTERVAL
+        screen.handle_input([InputEvent(0, "left", True, screen.last_click + 0.050)])
+    screen.handle_input([press(0, "start")])
+    assert app.cfg.global_offset_ms == pytest.approx(-50.0)
+    # a step 50 ms after the beat is heard now lands on the note
+    song = next(s for s in app.songs if s.title == "Test Song")
+    game = Gameplay(app, song, {0: song.charts_for("single")[0]}, "single")
+    assert game.clock.time_at(game.clock._anchor + 10.050) == pytest.approx(10.0)
