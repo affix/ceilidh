@@ -366,7 +366,7 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
-That builds the Windows executable, the macOS bundle and the Debian package for both `amd64` and `arm64`, then attaches all four to a GitHub release with notes explaining which file is for what. The Pi package is built under emulation, so it is the slowest part by a distance. A tag with a suffix, `v0.2.0-rc1` for instance, is published as a prerelease.
+That builds the Windows executable, the macOS bundle and the Debian package for both `amd64` and `arm64`, then attaches all four to a GitHub release with notes explaining which file is for what. Each architecture builds on its own hardware, the arm64 one on a native arm64 runner rather than under emulation, so the whole thing finishes in a couple of minutes. A tag with a suffix, `v0.2.0-rc1` for instance, is published as a prerelease.
 
 Running the workflow by hand from the Actions tab instead produces a draft release, which is a way to rehearse the whole thing without a tag or anything public appearing.
 
