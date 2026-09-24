@@ -128,8 +128,10 @@ class Gameplay(Screen):
             if target is None:
                 continue
             lane, offset = target
-            judgement = lane.press(ACTION_COLUMN[ev.action] + offset,
-                                   self.clock.time_at(ev.time))
+            # the global offset moves the arrows and the judging together, so
+            # display lag has to come off the press alone
+            when = self.clock.time_at(ev.time) - self.cfg.input_lag_ms / 1000.0
+            judgement = lane.press(ACTION_COLUMN[ev.action] + offset, when)
             if judgement is not None and self.tick is not None:
                 self.tick.play()
 

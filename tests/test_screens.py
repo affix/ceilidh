@@ -186,6 +186,18 @@ def test_backing_out_returns_to_the_song_list(app):
     assert app.screens[-1] is wheel
 
 
+def test_input_lag_is_taken_off_a_press_before_judging(app):
+    song = next(s for s in app.songs if s.title == "Test Song")
+    game = Gameplay(app, song, {0: song.charts_for("single")[0]}, "single")
+    app.push(game)
+    app.cfg.input_lag_ms = 80.0
+    judged = []
+    game.lanes[0].press = lambda column, when: judged.append(when)
+    wall = time.perf_counter()
+    game.handle_input([InputEvent(0, "left", True, wall)])
+    assert judged[0] == pytest.approx(game.clock.time_at(wall) - 0.080)
+
+
 def test_start_on_a_pad_pauses_and_resumes_a_song(app):
     song = next(s for s in app.songs if s.title == "Test Song")
     game = Gameplay(app, song, {0: song.charts_for("single")[0]}, "single")
