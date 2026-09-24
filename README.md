@@ -21,7 +21,7 @@ It reads StepMania simfiles, so the enormous back catalogue of community packs w
 
 ## Just want to play it?
 
-Grab a build from the [releases page](https://github.com/affix/ceilidh/releases). Python and SDL are inside each one, so there is nothing else to install.
+Grab a build from the [latest release](https://github.com/affix/ceilidh/releases/latest). Python and SDL are inside each one, so there is nothing else to install.
 
 | Platform | File |
 | --- | --- |
