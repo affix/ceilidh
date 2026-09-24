@@ -240,9 +240,11 @@ class CalibrateScreen(Screen):
                     self.result = statistics.median(trimmed)
 
     def suggested_offset_ms(self) -> float:
-        # the offset is added to song time, so stepping late means the song
-        # has to be read as earlier: subtract the error rather than add it
-        return round(self.cfg.global_offset_ms - (self.result or 0.0) * 1000.0, 1)
+        # the click does not go through the song clock, so the error is the
+        # whole latency rather than a correction to the current offset. The
+        # offset is added to song time, so stepping late means reading the
+        # song as earlier: the offset is the error, negated
+        return round(-(self.result or 0.0) * 1000.0, 1)
 
     def handle_events(self, events: list[pygame.event.Event]) -> None:
         for event in events:

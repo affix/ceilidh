@@ -292,6 +292,7 @@ def test_results_go_back_past_the_difficulty_screen_to_the_songs(app):
 
 
 def test_calibrating_late_steps_moves_the_offset_so_they_judge_on_time(app):
+    app.cfg.global_offset_ms = 61.2     # an earlier calibration must not skew this one
     screen = CalibrateScreen(app)
     app.push(screen)
     for beat in range(CalibrateScreen.NEEDED):
