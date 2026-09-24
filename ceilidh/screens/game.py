@@ -108,6 +108,13 @@ class Gameplay(Screen):
                 self.quit_song()
             return
         for ev in events:
+            if ev.from_pad and ev.pressed and ev.action == "back":
+                # nobody on a mat can reach Q, so Back leaves outright
+                self.quit_to_songs()
+                return
+            if ev.from_pad and ev.pressed and ev.action == "start":
+                self.toggle_pause()
+                continue
             if ev.action == "back" and ev.pressed:
                 self.toggle_pause()
                 continue
@@ -150,6 +157,14 @@ class Gameplay(Screen):
     def quit_song(self) -> None:
         self.clock.stop()
         self.app.pop()
+
+    def quit_to_songs(self) -> None:
+        """Leave past the difficulty screen, the way the results screen does."""
+        from .select import DifficultySelect
+
+        self.quit_song()
+        if self.app.screens and isinstance(self.app.screens[-1], DifficultySelect):
+            self.app.pop()
 
     def update(self, dt: float) -> None:
         if self.paused:
@@ -250,6 +265,8 @@ class Gameplay(Screen):
         surface.blit(overlay, (0, 0))
         self.fonts.draw(surface, "PAUSED", (width // 2, height // 2 - int(60 * scale)),
                         int(80 * scale), (255, 255, 255), bold=True, anchor="center")
-        self.fonts.draw(surface, "START resume     Q quit to song list",
+        hint = ("START resume     BACK quit to song list" if self.app.input.pad_count()
+                else "START resume     Q quit to song list")
+        self.fonts.draw(surface, hint,
                         (width // 2, height // 2 + int(30 * scale)), int(30 * scale),
                         (200, 200, 220), anchor="center")

@@ -198,6 +198,35 @@ def test_input_lag_is_taken_off_a_press_before_judging(app):
     assert judged[0] == pytest.approx(game.clock.time_at(wall) - 0.080)
 
 
+def test_start_on_a_pad_pauses_and_resumes_a_song(app):
+    song = next(s for s in app.songs if s.title == "Test Song")
+    game = Gameplay(app, song, {0: song.charts_for("single")[0]}, "single")
+    app.push(game)
+    game.handle_input([press(0, "start")])
+    assert game.paused
+    game.handle_input([press(0, "start")])
+    assert not game.paused
+
+
+def test_back_on_a_pad_leaves_the_song_for_the_song_list(app):
+    wheel = SongSelect(app)
+    app.push(wheel)
+    wheel.handle_input([press(0, "start")])
+    app.screens[-1].handle_input([press(0, "start")])
+    assert isinstance(app.screens[-1], Gameplay)
+    app.screens[-1].handle_input([press(0, "back")])
+    assert app.screens[-1] is wheel
+
+
+def test_escape_on_the_keyboard_still_pauses(app):
+    song = next(s for s in app.songs if s.title == "Test Song")
+    game = Gameplay(app, song, {0: song.charts_for("single")[0]}, "single")
+    app.push(game)
+    game.handle_input([InputEvent(0, "back", True, time.perf_counter(), from_pad=False)])
+    assert game.paused
+    assert app.screens[-1] is game
+
+
 def test_each_player_steps_on_their_own_playfield(app):
     song = next(s for s in app.songs if s.title == "Test Song")
     chart = song.charts_for("single")[0]
