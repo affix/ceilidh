@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pygame
 
-from ..display import art
+from ..display import art, video
 from ..screen import Repeater, Screen
 from ..input import InputEvent
 
@@ -213,6 +213,7 @@ class OptionsScreen(ListScreen):
             "Scoring",
             "Music Volume",
             "Global Offset",
+            "Input Lag",
             "Resolution",
             "Fullscreen",
             "Background",
@@ -251,6 +252,8 @@ class OptionsScreen(ListScreen):
             cfg.music_volume = max(0.0, min(1.0, round(cfg.music_volume + delta * 0.05, 2)))
         elif item == "Global Offset":
             cfg.global_offset_ms = round(cfg.global_offset_ms + delta * 1.0, 1)
+        elif item == "Input Lag":
+            cfg.input_lag_ms = max(0.0, min(250.0, round(cfg.input_lag_ms + delta * 5.0, 1)))
         elif item == "Show FPS":
             cfg.show_fps = not cfg.show_fps
         elif item == "Fullscreen":
@@ -280,10 +283,12 @@ class OptionsScreen(ListScreen):
             "Scoring": "CASUAL" if cfg.casual_scoring else "ARCADE",
             "Music Volume": f"{int(cfg.music_volume * 100)}%",
             "Global Offset": f"{cfg.global_offset_ms:+.1f} ms",
+            "Input Lag": f"{cfg.input_lag_ms:.0f} ms",
             "Show FPS": "ON" if cfg.show_fps else "OFF",
             "Fullscreen": "ON" if cfg.fullscreen else "OFF",
             "Resolution": resolution,
-            "Background": "VIDEO + IMAGE" if cfg.background_video else "IMAGE ONLY",
+            "Background": ("IMAGE ONLY (PI 4)" if video.too_slow()
+                           else "VIDEO + IMAGE" if cfg.background_video else "IMAGE ONLY"),
             "Background Dim": f"{int(cfg.background_dim * 100)}%",
             "Back": "",
         }.get(item, "")

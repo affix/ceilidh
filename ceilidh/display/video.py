@@ -30,12 +30,21 @@ def ffmpeg_path() -> str | None:
     return _binary  # type: ignore[return-value]
 
 
+def too_slow() -> bool:
+    """A Pi 4 cannot decode video and keep the arrows smooth at the same time."""
+    try:
+        model = Path("/proc/device-tree/model").read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return False
+    return model.startswith(("Raspberry Pi 4", "Raspberry Pi Compute Module 4"))
+
+
 def available() -> bool:
     """On PATH *and* able to run. A half broken install is common enough."""
     global _usable
     if _usable is None:
         binary = ffmpeg_path()
-        if binary is None:
+        if binary is None or too_slow():
             _usable = False
         else:
             try:

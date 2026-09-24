@@ -15,12 +15,13 @@ LANE_ACTIONS = ("left", "down", "up", "right")
 
 # Xbox 360 layout as exposed by SDL2: hat 0 is the d-pad, 6=Back, 7=Start.
 # Konami pads report the four panels on the d-pad; generic pads often use
-# buttons, so a few common indices are bound as well.
+# buttons, so a few common indices are bound as well. Linux's xpad driver
+# turns a 360 dance pad's d-pad into buttons 11-14 (up, down, left, right).
 DEFAULT_PAD_BINDINGS: dict[str, list[str]] = {
-    "left": ["hat:0:-1,0", "button:2", "axis:6:-"],
-    "down": ["hat:0:0,-1", "button:0", "axis:7:+"],
-    "up": ["hat:0:0,1", "button:3", "axis:7:-"],
-    "right": ["hat:0:1,0", "button:1", "axis:6:+"],
+    "left": ["hat:0:-1,0", "button:2", "axis:6:-", "button:13"],
+    "down": ["hat:0:0,-1", "button:0", "axis:7:+", "button:12"],
+    "up": ["hat:0:0,1", "button:3", "axis:7:-", "button:11"],
+    "right": ["hat:0:1,0", "button:1", "axis:6:+", "button:14"],
     "start": ["button:7"],
     "back": ["button:6"],
 }
@@ -134,6 +135,8 @@ class Config:
     music_volume: float = 0.85
     sfx_volume: float = 0.6
     global_offset_ms: float = 0.0
+    #: how late the display shows the arrows, taken off every press before judging
+    input_lag_ms: float = 0.0
     background_video: bool = True
     background_dim: float = 0.55
     video_fps: int = 24
@@ -192,6 +195,7 @@ class Config:
             "music_volume": self.music_volume,
             "sfx_volume": self.sfx_volume,
             "global_offset_ms": self.global_offset_ms,
+            "input_lag_ms": self.input_lag_ms,
             "background_video": self.background_video,
             "background_dim": self.background_dim,
             "video_fps": self.video_fps,
@@ -217,7 +221,7 @@ class Config:
         for key in (
             "resolution", "fullscreen", "fps", "vsync", "audio_buffer",
             "background_video", "background_dim", "video_fps", "video_height",
-            "music_volume", "sfx_volume", "global_offset_ms", "scroll_direction",
+            "music_volume", "sfx_volume", "global_offset_ms", "input_lag_ms", "scroll_direction",
             "constant_scroll", "timing_scale", "no_fail", "casual_scoring", "show_fps", "song_paths",
             "kiosk", "attract_seconds",
         ):
