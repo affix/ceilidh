@@ -4,7 +4,7 @@ Architecture: @ARCH@
 Maintainer: @MAINTAINER@
 Section: games
 Priority: optional
-Depends: libc6, libasound2 | libasound2t64, libdrm2, libgbm1
+Depends: libc6, libasound2 | libasound2t64, libdrm2, libgbm1, python3 (>= 3.13), python3 (<< 3.14)
 Recommends: ffmpeg
 Installed-Size: @SIZE@
 Description: Two pad dance mat game with custom song support
