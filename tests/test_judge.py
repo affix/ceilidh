@@ -140,3 +140,23 @@ def test_mean_error_reports_in_milliseconds_and_ignores_misses():
     score.add(EXCELLENT, 0.030)
     score.add(MISS)
     assert score.mean_error_ms == pytest.approx(20.0)
+
+
+def test_casual_scoring_never_takes_points_away():
+    score = PlayerScore(casual=True, possible_points=20.0)
+    score.add(FANTASTIC)
+    score.add(MISS)
+    score.add(WAYOFF)
+    score.add_mine()
+    assert score.dance_points == 5.0
+    assert score.percent == 25.0
+    assert score.counts[MISS] == 1
+    assert score.mines_hit == 1
+
+
+def test_arcade_scoring_still_punishes_misses():
+    score = PlayerScore(possible_points=20.0)
+    score.add(FANTASTIC)
+    score.add(MISS)
+    assert score.dance_points == -7.0
+    assert score.percent == 0.0

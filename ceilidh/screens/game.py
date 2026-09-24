@@ -43,6 +43,7 @@ class Gameplay(Screen):
         ]
         for lane in self.lanes:
             lane.autoplay = autoplay
+            lane.score.casual = app.cfg.casual_scoring
             lane.is_held = self._held_test(lane)
 
         label = "P1+P2" if mode == "double" else None
