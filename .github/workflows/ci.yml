@@ -45,20 +45,28 @@ jobs:
           uv run ceilidh --list-songs
 
   package:
-    name: debian package
-    runs-on: ubuntu-latest
+    name: debian package (${{ matrix.arch }})
+    # both architectures build natively, so the Pi package is checked on
+    # every push rather than only when a release is cut
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { arch: amd64, os: ubuntu-latest }
+          - { arch: arm64, os: ubuntu-24.04-arm }
     steps:
       - uses: actions/checkout@v4
 
       - name: Build the .deb
-        run: ./tools/build-deb.sh --arch amd64
+        run: ./tools/build-deb.sh --arch ${{ matrix.arch }}
 
       - name: Show what came out
         run: dpkg-deb --info dist/*.deb
 
       - uses: actions/upload-artifact@v4
         with:
-          name: ceilidh-deb
+          name: ceilidh-deb-${{ matrix.arch }}
           path: dist/*.deb
           if-no-files-found: error
 
