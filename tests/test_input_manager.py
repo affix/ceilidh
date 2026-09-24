@@ -148,7 +148,7 @@ def test_capture_only_takes_one_event(manager):
 
 
 def test_rebinding_a_panel_takes_effect_immediately(manager):
-    manager.cfg.players[0].bindings["left"] = ["button:11"]
+    manager.cfg.players[0].bindings["left"] = ["button:9"]
     manager.rebuild()
-    assert actions(manager.process([button(PAD_ONE, 11)])) == [(0, "left", True)]
+    assert actions(manager.process([button(PAD_ONE, 9)])) == [(0, "left", True)]
     assert manager.process([button(PAD_ONE, 2)]) == []      # the old binding is gone
