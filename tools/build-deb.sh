@@ -11,7 +11,7 @@ set -euo pipefail
 
 ARCH="arm64"
 OUTPUT="dist"
-IMAGE="debian:bookworm-slim"
+IMAGE="debian:trixie-slim"
 MAINTAINER='Keiran "Affix" Smith <opensource@keiran.scot>'
 NATIVE=0
 
@@ -22,7 +22,7 @@ usage() {
 Options:
   --arch ARCH         arm64 (default), amd64 or armhf
   --output DIR        where to drop the .deb (default dist)
-  --image IMAGE       build image (default debian:bookworm-slim)
+  --image IMAGE       build image (default debian:trixie-slim)
   --maintainer NAME   Maintainer field
   --native            build here instead of in Docker (needs Debian + dpkg-deb)
 EOF
