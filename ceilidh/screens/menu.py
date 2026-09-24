@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pygame
 
-from ..display import art
+from ..display import art, video
 from ..screen import Repeater, Screen
 from ..input import InputEvent
 
@@ -279,7 +279,8 @@ class OptionsScreen(ListScreen):
             "Show FPS": "ON" if cfg.show_fps else "OFF",
             "Fullscreen": "ON" if cfg.fullscreen else "OFF",
             "Resolution": resolution,
-            "Background": "VIDEO + IMAGE" if cfg.background_video else "IMAGE ONLY",
+            "Background": ("IMAGE ONLY (PI 4)" if video.too_slow()
+                           else "VIDEO + IMAGE" if cfg.background_video else "IMAGE ONLY"),
             "Background Dim": f"{int(cfg.background_dim * 100)}%",
             "Back": "",
         }.get(item, "")
