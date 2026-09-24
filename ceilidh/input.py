@@ -67,13 +67,14 @@ class InputManager:
         self.refresh_devices()
 
     def refresh_devices(self) -> None:
-        pygame.joystick.quit()
+        # never quit() the subsystem here: re-initialising it on Linux posts
+        # JOYDEVICEADDED for every pad already plugged in, which lands back
+        # here and renumbers the instance ids faster than presses arrive
         pygame.joystick.init()
         self.joysticks.clear()
         devices = []
         for index in range(pygame.joystick.get_count()):
             joy = pygame.joystick.Joystick(index)
-            joy.init()
             self.joysticks[joy.get_instance_id()] = joy
             devices.append(joy)
 

@@ -15,12 +15,13 @@ LANE_ACTIONS = ("left", "down", "up", "right")
 
 # Xbox 360 layout as exposed by SDL2: hat 0 is the d-pad, 6=Back, 7=Start.
 # Konami pads report the four panels on the d-pad; generic pads often use
-# buttons, so a few common indices are bound as well.
+# buttons, so a few common indices are bound as well. Linux's xpad driver
+# turns a 360 dance pad's d-pad into buttons 11-14 (up, down, left, right).
 DEFAULT_PAD_BINDINGS: dict[str, list[str]] = {
-    "left": ["hat:0:-1,0", "button:2", "axis:6:-"],
-    "down": ["hat:0:0,-1", "button:0", "axis:7:+"],
-    "up": ["hat:0:0,1", "button:3", "axis:7:-"],
-    "right": ["hat:0:1,0", "button:1", "axis:6:+"],
+    "left": ["hat:0:-1,0", "button:2", "axis:6:-", "button:13"],
+    "down": ["hat:0:0,-1", "button:0", "axis:7:+", "button:12"],
+    "up": ["hat:0:0,1", "button:3", "axis:7:-", "button:11"],
+    "right": ["hat:0:1,0", "button:1", "axis:6:+", "button:14"],
     "start": ["button:7"],
     "back": ["button:6"],
 }
