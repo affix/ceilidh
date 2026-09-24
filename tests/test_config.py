@@ -16,6 +16,7 @@ def isolated(tmp_path, monkeypatch):
 def test_settings_survive_a_save_and_load(isolated):
     cfg = Config()
     cfg.global_offset_ms = -12.5
+    cfg.input_lag_ms = 65.0
     cfg.resolution = "1920x1080"
     cfg.kiosk = True
     cfg.players[0].scroll_speed = 3.4
@@ -24,6 +25,7 @@ def test_settings_survive_a_save_and_load(isolated):
 
     loaded = Config.load()
     assert loaded.global_offset_ms == -12.5
+    assert loaded.input_lag_ms == 65.0
     assert loaded.resolution == "1920x1080"
     assert loaded.kiosk is True
     assert loaded.players[0].scroll_speed == 3.4

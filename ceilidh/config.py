@@ -134,6 +134,8 @@ class Config:
     music_volume: float = 0.85
     sfx_volume: float = 0.6
     global_offset_ms: float = 0.0
+    #: how late the display shows the arrows, taken off every press before judging
+    input_lag_ms: float = 0.0
     background_video: bool = True
     background_dim: float = 0.55
     video_fps: int = 24
@@ -191,6 +193,7 @@ class Config:
             "music_volume": self.music_volume,
             "sfx_volume": self.sfx_volume,
             "global_offset_ms": self.global_offset_ms,
+            "input_lag_ms": self.input_lag_ms,
             "background_video": self.background_video,
             "background_dim": self.background_dim,
             "video_fps": self.video_fps,
@@ -215,7 +218,7 @@ class Config:
         for key in (
             "resolution", "fullscreen", "fps", "vsync", "audio_buffer",
             "background_video", "background_dim", "video_fps", "video_height",
-            "music_volume", "sfx_volume", "global_offset_ms", "scroll_direction",
+            "music_volume", "sfx_volume", "global_offset_ms", "input_lag_ms", "scroll_direction",
             "constant_scroll", "timing_scale", "no_fail", "show_fps", "song_paths",
             "kiosk", "attract_seconds",
         ):
